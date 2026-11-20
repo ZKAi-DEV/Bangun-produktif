@@ -1,0 +1,38 @@
+{
+  "id": "/Bangun-produktif/",
+  "name": "BangunProduktif",
+  "short_name": "BangunProduktif",
+  "description": "Dashboard produktivitas harian: Alarm AI Push-Up, To-Do Rutin, Galeri Bukti, Tema Kustom, dan Sinkronisasi Google Calendar & Drive.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08090C",
+  "theme_color": "#08090C",
+  "lang": "id",
+  "categories": [
+    "productivity",
+    "lifestyle",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
