@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>BangunProduktif</title>
 
-  <!-- Inline PWA Manifest Data-URI -->
+  <!-- Inline PWA Manifest -->
   <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22BangunProduktif%22%2C%22short_name%22%3A%22BangunProduktif%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2308090C%22%2C%22theme_color%22%3A%22%2308090C%22%7D" />
 
   <!-- Tailwind CSS -->
@@ -20,7 +20,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif']
           }
         }
       }
@@ -38,15 +38,10 @@
   <!-- Google Identity Services (GIS) OAuth 2.0 -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- MediaPipe Pose CDN for Real-Time Skeletal Push-Up Detection -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
-
   <style>
     :root {
       --bg-main: #08090C;
       --bg-card: rgba(18, 20, 27, 0.92);
-      --bg-card-solid: #12141B;
-      --bg-input: #1A1D26;
       --text-main: #F3F4F6;
       --text-muted: #9CA3AF;
       --border-subtle: rgba(255, 255, 255, 0.08);
@@ -55,10 +50,12 @@
       --wallpaper-dim: 0.55;
       --wallpaper-blur: 4px;
     }
+
     * {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
     }
+
     html, body {
       background-color: var(--bg-main);
       color: var(--text-main);
@@ -66,55 +63,51 @@
       overscroll-behavior-y: none;
       transition: background-color 0.25s ease, color 0.25s ease;
     }
-    /* Dynamic Theme Surface Overrides */
+
     #main-app {
       background-color: transparent;
       color: var(--text-main);
       border-color: var(--border-subtle);
     }
-    .theme-surface {
-      background-color: var(--bg-card) !important;
-      border-color: var(--border-subtle) !important;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
+
     .theme-accent-bg {
       background-color: var(--accent) !important;
       color: #ffffff !important;
     }
+
     .theme-accent-text {
       color: var(--accent) !important;
     }
-    .theme-accent-soft {
-      background-color: var(--accent-soft) !important;
-      color: var(--accent) !important;
-      border-color: var(--accent) !important;
-    }
-    /* Light Mode Contrast Helpers */
+
+    /* Clean Light Theme Contrast Helpers */
     body.theme-light #main-app .text-white,
     body.theme-light #main-app .text-gray-100,
     body.theme-light #main-app .text-gray-200 {
       color: #0F172A !important;
     }
+
     body.theme-light #main-app .text-gray-300,
     body.theme-light #main-app .text-gray-400,
     body.theme-light #main-app .text-gray-500 {
       color: #475569 !important;
     }
+
     body.theme-light #main-app .bg-\[\#12141B\],
-    body.theme-light #main-app .bg-\[\#0D0F14\]\/95,
-    body.theme-light #main-app .bg-\[\#08090C\]\/90,
+    body.theme-light #main-app header,
+    body.theme-light #main-app nav,
     body.theme-light #main-app .from-\[\#141720\] {
       background-color: var(--bg-card) !important;
       background-image: none !important;
-      border-color: rgba(15, 23, 42, 0.1) !important;
+      border-color: rgba(15, 23, 42, 0.12) !important;
     }
+
     body.theme-light #main-app input,
     body.theme-light #main-app select {
       background-color: #FFFFFF !important;
       color: #0F172A !important;
-      border-color: rgba(15, 23, 42, 0.15) !important;
+      border-color: rgba(15, 23, 42, 0.18) !important;
     }
+
     body.has-wallpaper #main-app .bg-\[\#12141B\],
     body.has-wallpaper #main-app header,
     body.has-wallpaper #main-app nav {
@@ -122,30 +115,21 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: var(--bg-main);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #262934;
-      border-radius: 9999px;
-    }
-    /* Bottom sheet slide-up animation */
+
     @keyframes sheetSlideUp {
-      from { transform: translateY(100%); opacity: 0.5; }
+      from { transform: translateY(100%); opacity: 0.6; }
       to { transform: translateY(0); opacity: 1; }
     }
+
     .animate-sheet-up {
-      animation: sheetSlideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: sheetSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+
     @keyframes pulseRing {
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.04); opacity: 1; }
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.03); opacity: 1; }
     }
+
     .animate-alarm-pulse {
       animation: pulseRing 1.2s infinite ease-in-out;
     }
@@ -153,39 +137,32 @@
 </head>
 <body class="min-h-screen bg-[#08090C] text-gray-100 antialiased selection:bg-blue-500/30">
 
-  <!-- ===================================================================== -->
-  <!-- DYNAMIC WALLPAPER & OVERLAY BACKGROUND LAYERS                         -->
-  <!-- ===================================================================== -->
+  <!-- Dynamic Wallpaper Layers -->
   <div id="theme-wallpaper-layer" class="hidden fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none transition-all duration-300" style="filter: blur(var(--wallpaper-blur)); transform: scale(1.06);"></div>
   <div id="theme-wallpaper-overlay" class="hidden fixed inset-0 z-0 pointer-events-none transition-all duration-300" style="background-color: rgba(8, 9, 12, var(--wallpaper-dim));"></div>
 
-  <!-- ===================================================================== -->
-  <!-- TOAST NOTIFICATION CONTAINER (Replaces alert/confirm)                 -->
-  <!-- ===================================================================== -->
+  <!-- Toast Notification Container -->
   <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[120] w-[92%] max-w-md flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- ===================================================================== -->
-  <!-- SCREEN 1: TWO-STEP DARK LOGIN SCREEN                                  -->
+  <!-- SCREEN 1: MINIMALIST DARK LOGIN SCREEN (#08090C)                      -->
   <!-- ===================================================================== -->
   <section id="login-screen" class="fixed inset-0 z-50 bg-[#08090C] flex flex-col justify-between items-center px-6 py-12 select-none">
-    <!-- Top subtle brand watermark -->
-    <div class="w-full max-w-md flex flex-col items-center text-center mt-6 opacity-90">
-      <div class="w-12 h-12 rounded-2xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-3 shadow-lg">
-        <i data-lucide="zap" class="w-6 h-6 text-blue-400"></i>
+    <div class="w-full max-w-md flex flex-col items-center text-center mt-8">
+      <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center mb-4 shadow-xl">
+        <i data-lucide="zap" class="w-7 h-7 text-blue-400"></i>
       </div>
-      <h1 class="text-lg font-bold tracking-tight text-white">BangunProduktif</h1>
-      <p class="text-xs text-gray-400 mt-1">Alarm AI Push-Up • To-Do Rutin • Google Calendar</p>
+      <h1 class="text-2xl font-extrabold tracking-tight text-white">BangunProduktif</h1>
+      <p class="text-xs text-gray-400 mt-1.5">Alarm AI Push-up • To-Do Rutin • Google Calendar</p>
     </div>
 
-    <!-- Center-Bottom Reference Button Stack -->
-    <div class="w-full max-w-sm flex flex-col items-center gap-5 my-auto">
-      <!-- Primary White Pill Button: Lanjutkan dengan Google -->
+    <div class="w-full max-w-sm flex flex-col items-center gap-4 my-auto">
+      <!-- Primary White Button: Lanjutkan dengan Google -->
       <button
         id="btn-continue-google"
         type="button"
-        class="w-full h-14 bg-white hover:bg-gray-100 active:scale-[0.98] text-[#111318] font-semibold text-[16px] rounded-full shadow-[0_8px_30px_rgba(255,255,255,0.12)] flex items-center justify-center gap-3.5 transition-all cursor-pointer"
+        class="w-full h-14 bg-white hover:bg-gray-100 active:scale-[0.98] text-[#111318] font-semibold text-[15px] rounded-full shadow-[0_8px_30px_rgba(255,255,255,0.12)] flex items-center justify-center gap-3 transition-all cursor-pointer"
       >
-        <!-- Official Multicolor Google 'G' SVG -->
         <span class="w-7 h-7 rounded-full bg-[#F8FAFC] flex items-center justify-center shrink-0">
           <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M23.49 12.275c0-.85-.075-1.675-.215-2.475H12v4.685h6.445c-.28 1.495-1.125 2.765-2.395 3.615v3.005h3.875c2.265-2.085 3.565-5.16 3.565-8.83z"/>
@@ -197,30 +174,29 @@
         <span>Lanjutkan dengan Google</span>
       </button>
 
-      <!-- Clean White 'Instan' Text Button Below -->
+      <!-- Secondary Button: Masuk Instan (Mode Tamu) -->
       <button
         id="btn-instant-login"
         type="button"
-        class="px-6 py-2.5 text-white/95 hover:text-white active:scale-95 font-semibold text-[16px] tracking-wide rounded-full transition-all cursor-pointer"
+        class="w-full py-3 px-6 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white/90 hover:text-white active:scale-[0.98] font-semibold text-sm transition-all cursor-pointer"
       >
-        Instan
+        Masuk Instan (Mode Tamu)
       </button>
     </div>
 
-    <!-- Bottom Origin Info Hint -->
     <div class="w-full max-w-sm text-center">
       <p id="login-origin-hint" class="text-[11px] text-gray-500 leading-relaxed">
-        OAuth Client ID terpasang • Siap sinkronisasi Google Calendar
+        Menghubungkan akun Google asli di perangkatmu
       </p>
     </div>
   </section>
 
   <!-- ===================================================================== -->
-  <!-- SCREEN 2: MAIN PRODUCTIVITY APP WORKSPACE                             -->
+  <!-- SCREEN 2: MAIN PRODUCTIVITY DASHBOARD                                 -->
   <!-- ===================================================================== -->
   <div id="main-app" class="hidden relative z-10 min-h-screen flex flex-col max-w-lg mx-auto border-x border-white/[0.05] pb-24">
 
-    <!-- Top App Header -->
+    <!-- Top Header -->
     <header class="sticky top-0 z-30 bg-[#08090C]/90 backdrop-blur-md border-b border-white/[0.08] px-4 py-3">
       <div class="flex items-center justify-between gap-2">
         <!-- Editable App Name -->
@@ -228,127 +204,85 @@
           <div class="w-8 h-8 rounded-xl theme-accent-bg flex items-center justify-center shrink-0 shadow">
             <i data-lucide="zap" class="w-4 h-4 text-white"></i>
           </div>
-          <button
-            id="btn-edit-app-title"
-            type="button"
-            title="Klik untuk ubah nama aplikasi"
-            class="flex items-center gap-1.5 text-left group min-w-0 cursor-pointer"
-          >
-            <span id="header-app-title" class="font-bold text-[16px] text-white truncate">BangunProduktif</span>
-            <i data-lucide="pencil" class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-400 shrink-0 transition-colors"></i>
+          <button id="btn-edit-app-title" type="button" title="Ubah nama aplikasi" class="flex items-center gap-1.5 text-left group min-w-0 cursor-pointer">
+            <span id="header-app-title" class="font-bold text-[15px] text-white truncate">BangunProduktif</span>
+            <i data-lucide="pencil" class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-400 shrink-0"></i>
           </button>
         </div>
 
-        <!-- Account, Theme Studio & Sync Controls -->
+        <!-- Theme, Sync, Logout Controls -->
         <div class="flex items-center gap-1.5 shrink-0">
-          <button
-            id="btn-open-theme-studio"
-            type="button"
-            title="Ganti Tema & Upload Wallpaper"
-            class="p-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.14] border border-white/10 text-gray-200 flex items-center justify-center transition-all cursor-pointer"
-          >
+          <button id="btn-open-theme-studio" type="button" title="Tema & Tampilan" class="p-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.14] border border-white/10 text-gray-200 cursor-pointer">
             <i data-lucide="palette" class="w-4 h-4 theme-accent-text"></i>
           </button>
 
-          <button
-            id="btn-header-sync"
-            type="button"
-            title="Sinkronkan Google Calendar"
-            class="px-2.5 py-1.5 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
-          >
-            <i data-lucide="refresh-cw" id="sync-icon" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Sync</span>
+          <button id="btn-header-sync" type="button" title="Sinkronkan Google Calendar" class="p-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 cursor-pointer">
+            <i data-lucide="refresh-cw" id="sync-icon" class="w-4 h-4"></i>
           </button>
 
-          <button
-            id="btn-switch-account"
-            type="button"
-            title="Ganti Akun / Keluar"
-            class="px-2.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-gray-200 text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer"
-          >
-            <span id="header-avatar-badge" class="w-5 h-5 rounded-full bg-red-600 text-[10px] font-bold text-white flex items-center justify-center">Y</span>
-            <span class="max-w-[64px] truncate" id="header-user-short">Akun</span>
+          <button id="btn-switch-account" type="button" title="Keluar / Ganti Akun" class="px-2.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-gray-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer">
+            <span id="header-avatar-badge" class="w-5 h-5 rounded-full bg-blue-600 text-[10px] font-bold text-white flex items-center justify-center overflow-hidden">T</span>
+            <span id="header-user-short" class="max-w-[60px] truncate">Tamu</span>
             <i data-lucide="log-out" class="w-3 h-3 text-gray-400"></i>
           </button>
         </div>
       </div>
 
-      <!-- Connected Account & Sync Status Bar -->
+      <!-- Account Email Bar -->
       <div class="mt-2 flex items-center justify-between text-[11px] bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-1.5">
         <div class="flex items-center gap-1.5 min-w-0">
-          <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-          <span id="header-user-email" class="text-gray-300 truncate">Belum terhubung</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+          <span id="header-user-email" class="text-gray-300 truncate">Mode Tamu (Offline)</span>
         </div>
-        <span id="header-oauth-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 shrink-0">
-          Kalender Aktif
+        <span id="header-oauth-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 shrink-0">
+          Mode Tamu
         </span>
       </div>
     </header>
 
-    <!-- Main Dynamic Tab Content -->
+    <!-- Main Tab Views -->
     <main class="flex-1 px-4 pt-4 space-y-5">
 
-      <!-- ================================================================= -->
-      <!-- TAB 1: ALARM & AI POSE PUSH-UP CHALLENGE                          -->
-      <!-- ================================================================= -->
+      <!-- =============================================================== -->
+      <!-- TAB 1: ALARM AI POSE (PUSH-UP TRACKER)                          -->
+      <!-- =============================================================== -->
       <section id="tab-alarm" class="space-y-4">
-        <!-- Live Clock & Next Alarm Card -->
-        <div class="rounded-3xl bg-gradient-to-br from-[#141720] to-[#0E1016] border border-white/10 p-5 shadow-xl relative overflow-hidden">
-          <div class="flex items-center justify-between">
+        <!-- Live Digital Clock -->
+        <div class="rounded-3xl bg-gradient-to-br from-[#141720] to-[#0E1016] border border-white/10 p-5 shadow-xl">
+          <div class="flex items-center justify-between gap-3">
             <div>
               <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Waktu Sekarang</span>
-              <div id="live-clock-time" class="text-4xl font-extrabold tracking-tight text-white mt-0.5 tabular-nums">03:13:00</div>
-              <div id="live-clock-date" class="text-xs text-gray-400 mt-1">Sabtu, 21 November 2026</div>
+              <div id="live-clock-time" class="text-4xl font-extrabold tracking-tight text-white mt-0.5 tabular-nums">00:00:00</div>
+              <div id="live-clock-date" class="text-xs text-gray-400 mt-1">Memuat tanggal...</div>
             </div>
-            <button
-              id="btn-test-alarm-now"
-              type="button"
-              class="px-3.5 py-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer"
-            >
+            <button id="btn-test-alarm-now" type="button" class="px-3.5 py-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold flex flex-col items-center gap-1 cursor-pointer">
               <i data-lucide="bell-ring" class="w-4 h-4"></i>
               <span>Tes Alarm</span>
             </button>
           </div>
         </div>
 
-        <!-- Custom Alarm Audio Upload Card -->
+        <!-- Custom Alarm Sound Upload -->
         <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-4 space-y-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <i data-lucide="music" class="w-4 h-4 text-purple-400"></i>
               <h3 class="text-sm font-bold text-white">Nada Dering Alarm</h3>
             </div>
-            <span id="alarm-sound-badge" class="text-[11px] text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full font-medium">
-              Nada Bawaan
-            </span>
+            <span id="alarm-sound-badge" class="text-[11px] text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full font-medium">Nada Bawaan</span>
           </div>
-
-          <p id="alarm-sound-filename" class="text-xs text-gray-400 truncate">
-            Menggunakan nada dering digital bawaan (Web Audio)
-          </p>
-
+          <p id="alarm-sound-filename" class="text-xs text-gray-400 truncate">Menggunakan nada dering digital bawaan (Web Audio)</p>
           <div class="flex items-center gap-2">
-            <label class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-gray-200 flex items-center justify-center gap-2 cursor-pointer transition-all">
+            <label class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-gray-200 flex items-center justify-center gap-2 cursor-pointer">
               <i data-lucide="upload" class="w-3.5 h-3.5 text-purple-400"></i>
-              <span>Upload MP3 / WAV</span>
+              <span>Upload Audio</span>
               <input id="input-alarm-audio" type="file" accept="audio/*" class="hidden" />
             </label>
-
-            <button
-              id="btn-preview-sound"
-              type="button"
-              class="py-2.5 px-3.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-            >
+            <button id="btn-preview-sound" type="button" class="py-2.5 px-3.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
               <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
-              <span>Cek Suara</span>
+              <span>Cek</span>
             </button>
-
-            <button
-              id="btn-reset-sound"
-              type="button"
-              title="Reset ke nada bawaan"
-              class="hidden py-2.5 px-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs cursor-pointer"
-            >
+            <button id="btn-reset-sound" type="button" title="Reset nada bawaan" class="hidden py-2.5 px-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs cursor-pointer">
               <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
             </button>
           </div>
@@ -358,9 +292,8 @@
         <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-4 space-y-3">
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i>
-            <span>Tambah Alarm Push-Up Baru</span>
+            <span>Tambah Alarm Push-Up</span>
           </h3>
-
           <div class="grid grid-cols-2 gap-2.5">
             <div>
               <label class="block text-[11px] text-gray-400 mb-1">Jam Alarm</label>
@@ -377,24 +310,72 @@
               </select>
             </div>
           </div>
-
           <div>
             <label class="block text-[11px] text-gray-400 mb-1">Label Alarm</label>
-            <input id="new-alarm-label" type="text" placeholder="Contoh: Bangun Subuh & Kuliah" class="w-full bg-[#1A1D26] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+            <input id="new-alarm-label" type="text" placeholder="Contoh: Bangun Pagi & Olahraga" class="w-full bg-[#1A1D26] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+          </div>
+          <button id="btn-save-alarm" type="button" class="w-full py-3 rounded-xl theme-accent-bg hover:opacity-95 active:scale-[0.99] text-white font-bold text-xs shadow-lg cursor-pointer">
+            Simpan Alarm
+          </button>
+        </div>
+
+        <!-- Saved Alarms List -->
+        <div class="space-y-2.5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 px-1">Daftar Alarm</h3>
+          <div id="alarms-list" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 2: TO-DO LIST                                               -->
+      <!-- =============================================================== -->
+      <section id="tab-todo" class="hidden space-y-4">
+        <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <button id="btn-todo-prev-day" type="button" class="p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-gray-200 cursor-pointer">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <div class="flex-1 text-center">
+              <div id="todo-day-title" class="text-sm font-bold text-white">Hari Ini</div>
+              <div class="flex items-center justify-center gap-2 mt-1">
+                <input id="todo-date-picker" type="date" class="bg-transparent text-xs text-blue-400 font-semibold focus:outline-none cursor-pointer" />
+                <button id="btn-todo-today" type="button" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 cursor-pointer">Hari Ini</button>
+              </div>
+            </div>
+            <button id="btn-todo-next-day" type="button" class="p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-gray-200 cursor-pointer">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
           </div>
 
-          <!-- Repeat Days Selector -->
-          <div>
-            <label class="block text-[11px] text-gray-400 mb-1.5">Ulangi Hari</label>
-            <div id="new-alarm-days" class="grid grid-cols-7 gap-1">
-              <button type="button" data-day="1" class="day-toggle-btn active py-1.5 rounded-lg text-[11px] font-bold bg-blue-600 text-white">Sen</button>
-              <button type="button" data-day="2" class="day-toggle-btn active py-1.5 rounded-lg text-[11px] font-bold bg-blue-600 text-white">Sel</button>
-              <button type="button" data-day="3" class="day-toggle-btn active py-1.5 rounded-lg text-[11px] font-bold bg-blue-600 text-white">Rab</button>
-              <button type="button" data-day="4" class="day-toggle-btn active py-1.5 rounded-lg text-[11px] font-bold bg-blue-600 text-white">Kam</button>
-              <button type="button" data-day="5" class="day-toggle-btn active py-1.5 rounded-lg text-[11px] font-bold bg-blue-600 text-white">Jum</button>
-              <button type="button" data-day="6" class="day-toggle-btn py-1.5 rounded-lg text-[11px] font-bold bg-[#1A1D26] text-gray-400">Sab</button>
-              <button type="button" data-day="0" class="day-toggle-btn py-1.5 rounded-lg text-[11px] font-bold bg-[#1A1D26] text-gray-400">Min</button>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 font-medium">Progres Tugas</span>
+              <span id="todo-progress-text" class="font-bold text-emerald-400">0/0 (0%)</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-[#1C1F2A] overflow-hidden">
+              <div id="todo-progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
           </div>
+        </div>
 
-          <button id="btn-save-alarm" type="button" class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.99] text-wh
+        <div class="flex gap-2">
+          <input id="new-todo-input" type="text" placeholder="Tambah tugas baru..." class="flex-1 bg-[#12141B] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+          <button id="btn-add-todo" type="button" class="px-4 py-3 rounded-2xl theme-accent-bg text-white font-bold text-xs flex items-center gap-1 shrink-0 cursor-pointer">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Tambah</span>
+          </button>
+        </div>
+
+        <div id="todo-items-container" class="space-y-2.5"></div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 3: GALERI BUKTI                                             -->
+      <!-- =============================================================== -->
+      <section id="tab-gallery" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-white">Galeri Bukti</h2>
+            <p class="text-xs text-gray-400">Foto & video dokumentasi aktivitasmu</p>
+          </div>
+          <label cl
