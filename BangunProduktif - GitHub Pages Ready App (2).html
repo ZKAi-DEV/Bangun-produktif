@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#08090C" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>BangunProduktif</title>
+
+  <!-- Inline PWA Manifest -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22BangunProduktif%22%2C%22short_name%22%3A%22BangunProduktif%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2308090C%22%2C%22theme_color%22%3A%22%2308090C%22%7D" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Identity Services (GIS) OAuth 2.0 -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --bg-main: #08090C;
+      --bg-card: rgba(18, 20, 27, 0.92);
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --accent: #3B82F6;
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --wallpaper-dim: 0.55;
+      --wallpaper-blur: 4px;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overscroll-behavior-y: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    #main-app {
+      background-color: transparent;
+      color: var(--text-main);
+      border-color: var(--border-subtle);
+    }
+
+    .theme-accent-bg {
+      background-color: var(--accent) !important;
+      color: #ffffff !important;
+    }
+
+    .theme-accent-text {
+      color: var(--accent) !important;
+    }
+
+    /* Clean Light Theme Contrast Helpers */
+    body.theme-light #main-app .text-white,
+    body.theme-light #main-app .text-gray-100,
+    body.theme-light #main-app .text-gray-200 {
+      color: #0F172A !important;
+    }
+
+    body.theme-light #main-app .text-gray-300,
+    body.theme-light #main-app .text-gray-400,
+    body.theme-light #main-app .text-gray-500 {
+      color: #475569 !important;
+    }
+
+    body.theme-light #main-app .bg-\[\#12141B\],
+    body.theme-light #main-app header,
+    body.theme-light #main-app nav,
+    body.theme-light #main-app .from-\[\#141720\] {
+      background-color: var(--bg-card) !important;
+      background-image: none !important;
+      border-color: rgba(15, 23, 42, 0.12) !important;
+    }
+
+    body.theme-light #main-app input,
+    body.theme-light #main-app select {
+      background-color: #FFFFFF !important;
+      color: #0F172A !important;
+      border-color: rgba(15, 23, 42, 0.18) !important;
+    }
+
+    body.has-wallpaper #main-app .bg-\[\#12141B\],
+    body.has-wallpaper #main-app header,
+    body.has-wallpaper #main-app nav {
+      background-color: var(--bg-card) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    @keyframes sheetSlideUp {
+      from { transform: translateY(100%); opacity: 0.6; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .animate-sheet-up {
+      animation: sheetSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulseRing {
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.03); opacity: 1; }
+    }
+
+    .animate-alarm-pulse {
+      animation: pulseRing 1.2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#08090C] text-gray-100 antialiased selection:bg-blue-500/30">
+
+  <!-- Dynamic Wallpaper Layers -->
+  <div id="theme-wallpaper-layer" class="hidden fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none transition-all duration-300" style="filter: blur(var(--wallpaper-blur)); transform: scale(1.06);"></div>
+  <div id="theme-wallpaper-overlay" class="hidden fixed inset-0 z-0 pointer-events-none transition-all duration-300" style="background-color: rgba(8, 9, 12, var(--wallpaper-dim));"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[120] w-[92%] max-w-md flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ===================================================================== -->
+  <!-- SCREEN 1: MINIMALIST DARK LOGIN SCREEN (#08090C)                      -->
+  <!-- ===================================================================== -->
+  <section id="login-screen" class="fixed inset-0 z-50 bg-[#08090C] flex flex-col justify-between items-center px-6 py-12 select-none">
+    <div class="w-full max-w-md flex flex-col items-center text-center mt-8">
+      <div class="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/10 flex items-center justify-center mb-4 shadow-xl">
+        <i data-lucide="zap" class="w-7 h-7 text-blue-400"></i>
+      </div>
+      <h1 class="text-2xl font-extrabold tracking-tight text-white">BangunProduktif</h1>
+      <p class="text-xs text-gray-400 mt-1.5">Alarm AI Push-up • To-Do Rutin • Google Calendar</p>
+    </div>
+
+    <div class="w-full max-w-sm flex flex-col items-center gap-4 my-auto">
+      <!-- Primary White Button: Lanjutkan dengan Google -->
+      <button
+        id="btn-continue-google"
+        type="button"
+        class="w-full h-14 bg-white hover:bg-gray-100 active:scale-[0.98] text-[#111318] font-semibold text-[15px] rounded-full shadow-[0_8px_30px_rgba(255,255,255,0.12)] flex items-center justify-center gap-3 transition-all cursor-pointer"
+      >
+        <span class="w-7 h-7 rounded-full bg-[#F8FAFC] flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.49 12.275c0-.85-.075-1.675-.215-2.475H12v4.685h6.445c-.28 1.495-1.125 2.765-2.395 3.615v3.005h3.875c2.265-2.085 3.565-5.16 3.565-8.83z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.955-1.075 7.94-2.905l-3.875-3.005c-1.075.72-2.45 1.15-4.065 1.15-3.125 0-5.775-2.11-6.72-4.945H1.275v3.105C3.25 21.32 7.31 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.295c-.24-.72-.38-1.49-.38-2.295s.14-1.575.38-2.295V6.6H1.275C.465 8.215 0 10.055 0 12s.465 3.785 1.275 5.4l4.005-3.105z"/>
+            <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.605 4.585 1.795l3.435-3.435C17.95 1.19 15.235 0 12 0 7.31 0 3.25 2.68 1.275 6.6l4.005 3.105c.945-2.835 3.595-4.955 6.72-4.955z"/>
+          </svg>
+        </span>
+        <span>Lanjutkan dengan Google</span>
+      </button>
+
+      <!-- Secondary Button: Masuk Instan (Mode Tamu) -->
+      <button
+        id="btn-instant-login"
+        type="button"
+        class="w-full py-3 px-6 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-white/90 hover:text-white active:scale-[0.98] font-semibold text-sm transition-all cursor-pointer"
+      >
+        Masuk Instan (Mode Tamu)
+      </button>
+    </div>
+
+    <div class="w-full max-w-sm text-center">
+      <p id="login-origin-hint" class="text-[11px] text-gray-500 leading-relaxed">
+        Menghubungkan akun Google asli di perangkatmu
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- SCREEN 2: MAIN PRODUCTIVITY DASHBOARD                                 -->
+  <!-- ===================================================================== -->
+  <div id="main-app" class="hidden relative z-10 min-h-screen flex flex-col max-w-lg mx-auto border-x border-white/[0.05] pb-24">
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-[#08090C]/90 backdrop-blur-md border-b border-white/[0.08] px-4 py-3">
+      <div class="flex items-center justify-between gap-2">
+        <!-- Editable App Name -->
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-8 h-8 rounded-xl theme-accent-bg flex items-center justify-center shrink-0 shadow">
+            <i data-lucide="zap" class="w-4 h-4 text-white"></i>
+          </div>
+          <button id="btn-edit-app-title" type="button" title="Ubah nama aplikasi" class="flex items-center gap-1.5 text-left group min-w-0 cursor-pointer">
+            <span id="header-app-title" class="font-bold text-[15px] text-white truncate">BangunProduktif</span>
+            <i data-lucide="pencil" class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-400 shrink-0"></i>
+          </button>
+        </div>
+
+        <!-- Theme, Sync, Logout Controls -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button id="btn-open-theme-studio" type="button" title="Tema & Tampilan" class="p-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.14] border border-white/10 text-gray-200 cursor-pointer">
+            <i data-lucide="palette" class="w-4 h-4 theme-accent-text"></i>
+          </button>
+
+          <button id="btn-header-sync" type="button" title="Sinkronkan Google Calendar" class="p-2 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 cursor-pointer">
+            <i data-lucide="refresh-cw" id="sync-icon" class="w-4 h-4"></i>
+          </button>
+
+          <button id="btn-switch-account" type="button" title="Keluar / Ganti Akun" class="px-2.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-gray-200 text-xs font-medium flex items-center gap-1.5 cursor-pointer">
+            <span id="header-avatar-badge" class="w-5 h-5 rounded-full bg-blue-600 text-[10px] font-bold text-white flex items-center justify-center overflow-hidden">T</span>
+            <span id="header-user-short" class="max-w-[60px] truncate">Tamu</span>
+            <i data-lucide="log-out" class="w-3 h-3 text-gray-400"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Account Email Bar -->
+      <div class="mt-2 flex items-center justify-between text-[11px] bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-1.5">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+          <span id="header-user-email" class="text-gray-300 truncate">Mode Tamu (Offline)</span>
+        </div>
+        <span id="header-oauth-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 shrink-0">
+          Mode Tamu
+        </span>
+      </div>
+    </header>
+
+    <!-- Main Tab Views -->
+    <main class="flex-1 px-4 pt-4 space-y-5">
+
+      <!-- =============================================================== -->
+      <!-- TAB 1: ALARM AI POSE (PUSH-UP TRACKER)                          -->
+      <!-- =============================================================== -->
+      <section id="tab-alarm" class="space-y-4">
+        <!-- Live Digital Clock -->
+        <div class="rounded-3xl bg-gradient-to-br from-[#141720] to-[#0E1016] border border-white/10 p-5 shadow-xl">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-400">Waktu Sekarang</span>
+              <div id="live-clock-time" class="text-4xl font-extrabold tracking-tight text-white mt-0.5 tabular-nums">00:00:00</div>
+              <div id="live-clock-date" class="text-xs text-gray-400 mt-1">Memuat tanggal...</div>
+            </div>
+            <button id="btn-test-alarm-now" type="button" class="px-3.5 py-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold flex flex-col items-center gap-1 cursor-pointer">
+              <i data-lucide="bell-ring" class="w-4 h-4"></i>
+              <span>Tes Alarm</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Alarm Sound Upload -->
+        <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="music" class="w-4 h-4 text-purple-400"></i>
+              <h3 class="text-sm font-bold text-white">Nada Dering Alarm</h3>
+            </div>
+            <span id="alarm-sound-badge" class="text-[11px] text-purple-300 bg-purple-500/15 px-2.5 py-0.5 rounded-full font-medium">Nada Bawaan</span>
+          </div>
+          <p id="alarm-sound-filename" class="text-xs text-gray-400 truncate">Menggunakan nada dering digital bawaan (Web Audio)</p>
+          <div class="flex items-center gap-2">
+            <label class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-gray-200 flex items-center justify-center gap-2 cursor-pointer">
+              <i data-lucide="upload" class="w-3.5 h-3.5 text-purple-400"></i>
+              <span>Upload Audio</span>
+              <input id="input-alarm-audio" type="file" accept="audio/*" class="hidden" />
+            </label>
+            <button id="btn-preview-sound" type="button" class="py-2.5 px-3.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+              <span>Cek</span>
+            </button>
+            <button id="btn-reset-sound" type="button" title="Reset nada bawaan" class="hidden py-2.5 px-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs cursor-pointer">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Add New Alarm Form -->
+        <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-4 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i>
+            <span>Tambah Alarm Push-Up</span>
+          </h3>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[11px] text-gray-400 mb-1">Jam Alarm</label>
+              <input id="new-alarm-time" type="time" value="05:00" class="w-full bg-[#1A1D26] border border-white/10 rounded-xl px-3 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-gray-400 mb-1">Target Push-Up</label>
+              <select id="new-alarm-reps" class="w-full bg-[#1A1D26] border border-white/10 rounded-xl px-3 py-2.5 text-sm font-semibold text-white focus:outline-none focus:border-blue-500">
+                <option value="5">5x Push-Up</option>
+                <option value="10" selected>10x Push-Up</option>
+                <option value="15">15x Push-Up</option>
+                <option value="20">20x Push-Up</option>
+                <option value="30">30x Push-Up</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] text-gray-400 mb-1">Label Alarm</label>
+            <input id="new-alarm-label" type="text" placeholder="Contoh: Bangun Pagi & Olahraga" class="w-full bg-[#1A1D26] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+          </div>
+          <button id="btn-save-alarm" type="button" class="w-full py-3 rounded-xl theme-accent-bg hover:opacity-95 active:scale-[0.99] text-white font-bold text-xs shadow-lg cursor-pointer">
+            Simpan Alarm
+          </button>
+        </div>
+
+        <!-- Saved Alarms List -->
+        <div class="space-y-2.5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 px-1">Daftar Alarm</h3>
+          <div id="alarms-list" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 2: TO-DO LIST                                               -->
+      <!-- =============================================================== -->
+      <section id="tab-todo" class="hidden space-y-4">
+        <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <button id="btn-todo-prev-day" type="button" class="p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-gray-200 cursor-pointer">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <div class="flex-1 text-center">
+              <div id="todo-day-title" class="text-sm font-bold text-white">Hari Ini</div>
+              <div class="flex items-center justify-center gap-2 mt-1">
+                <input id="todo-date-picker" type="date" class="bg-transparent text-xs text-blue-400 font-semibold focus:outline-none cursor-pointer" />
+                <button id="btn-todo-today" type="button" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 cursor-pointer">Hari Ini</button>
+              </div>
+            </div>
+            <button id="btn-todo-next-day" type="button" class="p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-gray-200 cursor-pointer">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-400 font-medium">Progres Tugas</span>
+              <span id="todo-progress-text" class="font-bold text-emerald-400">0/0 (0%)</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-[#1C1F2A] overflow-hidden">
+              <div id="todo-progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <input id="new-todo-input" type="text" placeholder="Tambah tugas baru..." class="flex-1 bg-[#12141B] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+          <button id="btn-add-todo" type="button" class="px-4 py-3 rounded-2xl theme-accent-bg text-white font-bold text-xs flex items-center gap-1 shrink-0 cursor-pointer">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Tambah</span>
+          </button>
+        </div>
+
+        <div id="todo-items-container" class="space-y-2.5"></div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 3: GALERI BUKTI                                             -->
+      <!-- =============================================================== -->
+      <section id="tab-gallery" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-white">Galeri Bukti</h2>
+            <p class="text-xs text-gray-400">Foto & video dokumentasi aktivitasmu</p>
+          </div>
+          <label class="px-3.5 py-2 rounded-xl theme-accent-bg text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow">
+            <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+            <span>Upload</span>
+            <input id="input-direct-gallery-media" type="file" accept="image/*,video/*" class="hidden" />
+          </label>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" data-gal-filter="all" class="gal-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#111318] cursor-pointer">Semua</button>
+          <button type="button" data-gal-filter="image" class="gal-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/[0.06] text-gray-300 cursor-pointer">Foto</button>
+          <button type="button" data-gal-filter="video" class="gal-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/[0.06] text-gray-300 cursor-pointer">Video</button>
+        </div>
+
+        <div id="gallery-grid" class="grid grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- TAB 4: KALENDER (GOOGLE CALENDAR SYNC)                          -->
+      <!-- =============================================================== -->
+      <section id="tab-calendar" class="hidden space-y-4">
+        <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-3.5 flex flex-wrap items-center justify-between gap-2">
+          <button id="btn-cal-sync-now" type="button" class="px-3.5 py-2 rounded-xl theme-accent-bg text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Sinkronkan Sekarang</span>
+          </button>
+
+          <label class="px-3.5 py-2 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] border border-white/10 text-gray-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="file-up" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Import .ICS</span>
+            <input id="input-import-ics" type="file" accept=".ics,text/calendar" class="hidden" />
+          </label>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Jadwal Mendatang</h3>
+            <span id="cal-event-count" class="text-[11px] text-blue-400 font-semibold">0 jadwal</span>
+          </div>
+          <div id="cal-agenda-list" class="space-y-2.5"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg z-30 bg-[#0D0F14]/95 backdrop-blur-lg border-t border-white/[0.08] px-2 py-2">
+      <div class="grid grid-cols-4 gap-1">
+        <button type="button" data-tab="alarm" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-blue-400 bg-blue-500/10 cursor-pointer">
+          <i data-lucide="alarm-clock" class="w-5 h-5"></i>
+          <span class="text-[10px] font-bold mt-1">Alarm</span>
+        </button>
+        <button type="button" data-tab="todo" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-gray-400 hover:text-gray-200 cursor-pointer">
+          <i data-lucide="check-square" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold mt-1">To-Do</span>
+        </button>
+        <button type="button" data-tab="gallery" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-gray-400 hover:text-gray-200 cursor-pointer">
+          <i data-lucide="image" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold mt-1">Galeri</span>
+        </button>
+        <button type="button" data-tab="calendar" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-gray-400 hover:text-gray-200 cursor-pointer">
+          <i data-lucide="calendar" class="w-5 h-5"></i>
+          <span class="text-[10px] font-semibold mt-1">Kalender</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ALARM RINGING OVERLAY (CAMERA PUSH-UP TRACKER + TAP FALLBACK)         -->
+  <!-- ===================================================================== -->
+  <div id="alarm-challenge-modal" class="hidden fixed inset-0 z-[100] bg-[#08090C] flex flex-col justify-between p-4 select-none">
+    <div class="flex items-center justify-between bg-red-500/15 border border-red-500/30 rounded-2xl px-4 py-3 animate-alarm-pulse">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div id="challenge-alarm-title" class="text-sm font-extrabold text-white">Waktunya Push-Up!</div>
+          <div id="challenge-ai-status" class="text-[11px] text-red-200">Menyiapkan kamera...</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-2xl font-black text-white tabular-nums">
+          <span id="challenge-rep-current" class="text-emerald-400">0</span>/<span id="challenge-rep-target">10</span>
+        </div>
+        <div class="text-[10px] uppercase tracking-wider text-gray-300 font-bold">Push-Up</div>
+      </div>
+    </div>
+
+    <div class="relative flex-1 my-3 rounded-3xl overflow-hidden bg-[#11131A] border border-white/15 flex items-center justify-center">
+      <video id="pose-video" playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
+      <canvas id="motion-canvas" class="hidden"></canvas>
+      <div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+        <span id="pose-motion-badge" class="px-3 py-1 rounded-full bg-black/70 text-xs font-bold text-cyan-300 border border-cyan-400/30">
+          Deteksi Gerak: Siap
+        </span>
+      </div>
+      <div id="pose-camera-fallback-banner" class="hidden absolute inset-x-4 bottom-4 p-3 rounded-2xl bg-black/80 border border-white/15 text-center">
+        <p class="text-xs text-gray-200 font-medium">Kamera tidak aktif. Gunakan tombol +1 Rep di bawah untuk menyelesaikan target.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+      <button id="btn-manual-pushup-rep" type="button" class="py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+        <span>+1 Rep (Tap)</span>
+      </button>
+
+      <button id="btn-dismiss-alarm-locked" type="button" disabled class="py-3.5 px-4 rounded-2xl bg-gray-800 text-gray-500 font-extrabold text-xs flex items-center justify-center gap-2 cursor-not-allowed">
+        <i data-lucide="lock" class="w-4 h-4"></i>
+        <span>Terkunci</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: EDIT APP NAME                                                  -->
+  <!-- ===================================================================== -->
+  <div id="modal-edit-title" class="hidden fixed inset-0 z-[90] bg-black/75 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm rounded-3xl bg-[#161821] border border-white/10 p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Ubah Nama Aplikasi</h3>
+        <button type="button" data-close-modal="modal-edit-title" class="p-1.5 rounded-full text-gray-400 hover:bg-white/10 cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <input id="input-custom-app-title" type="text" maxlength="28" placeholder="Nama aplikasi..." class="w-full bg-[#0E1016] border border-white/15 rounded-2xl px-4 py-3 text-sm font-semibold text-white focus:outline-none focus:border-blue-500" />
+      <div class="flex gap-2">
+        <button type="button" data-close-modal="modal-edit-title" class="flex-1 py-2.5 rounded-xl bg-white/[0.06] text-gray-300 text-xs font-semibold cursor-pointer">Batal</button>
+        <button id="btn-save-app-title" type="button" class="flex-1 py-2.5 rounded-xl theme-accent-bg text-white text-xs font-bold cursor-pointer">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: GALLERY LIGHTBOX                                               -->
+  <!-- ===================================================================== -->
+  <div id="modal-lightbox" class="hidden fixed inset-0 z-[95] bg-black/90 backdrop-blur-md flex flex-col justify-between p-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h4 id="lightbox-title" class="text-sm font-bold text-white">Media</h4>
+        <p id="lightbox-meta" class="text-[11px] text-gray-400"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-lightbox-delete" type="button" class="p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 cursor-pointer">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+        <button type="button" data-close-modal="modal-lightbox" class="p-2.5 rounded-xl bg-white/10 text-white cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    <div id="lightbox-media-wrapper" class="flex-1 my-4 flex items-center justify-center overflow-hidden rounded-2xl"></div>
+    <div class="text-center text-[11px] text-gray-500">Tersimpan secara lokal di perangkatmu</div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL: THEME STUDIO (TEMA & TAMPILAN)                                 -->
+  <!-- ===================================================================== -->
+  <div id="modal-theme-studio" class="hidden fixed inset-0 z-[95] bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full max-w-md max-h-[88vh] overflow-y-auto rounded-t-[28px] sm:rounded-3xl bg-[#161821] border border-white/10 p-5 space-y-5 shadow-2xl animate-sheet-up text-gray-100">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl theme-accent-bg flex items-center justify-center shadow">
+            <i data-lucide="palette" class="w-4 h-4 text-white"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Tema & Tampilan</h3>
+            <p class="text-[11px] text-gray-400">6 Preset • Wallpaper • Warna Aksen • JSON</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-theme-studio" class="p-2 rounded-full text-gray-400 hover:bg-white/10 cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- 6 Preset Themes -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold uppercase tracking-wider text-gray-400">Tema Bawaan</label>
+        <div id="theme-presets-grid" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <!-- Custom Wallpaper Upload -->
+      <div class="space-y-3 p-3.5 rounded-2xl bg-[#0E1016] border border-white/10">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i data-lucide="image-plus" class="w-4 h-4 text-emerald-400"></i>
+            <span>Wallpaper Kustom</span>
+          </span>
+          <span id="theme-wallpaper-status" class="text-[10px] text-gray-400 truncate max-w-[140px]">Belum ada gambar</span>
+        </div>
+        <div class="flex gap-2">
+          <label class="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-gray-100 flex items-center justify-center gap-2 cursor-pointer">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>Upload Gambar</span>
+            <input id="input-theme-wallpaper" type="file" accept="image/*" class="hidden" />
+          </label>
+          <button id="btn-remove-wallpaper" type="button" class="hidden px-3.5 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 text-xs font-semibold cursor-pointer">
+            Hapus Wallpaper
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div>
+            <div class="flex justify-between text-[11px] text-gray-400 mb-1">
+              <span>Kegelapan Overlay</span>
+              <span id="val-wallpaper-dim" class="font-bold text-white">55%</span>
+            </div>
+            <input id="slider-wallpaper-dim" type="range" min="10" max="90" value="55" class="w-full accent-blue-500 cursor-pointer" />
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] text-gray-400 mb-1">
+              <span>Blur Latar</span>
+              <span id="val-wallpaper-blur" class="font-bold text-white">4px</span>
+            </div>
+            <input id="slider-wallpaper-blur" type="range" min="0" max="20" value="4" class="w-full accent-blue-500 cursor-pointer" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Accent Color Picker + Swatches -->
+      <div class="space-y-2.5 p-3.5 rounded-2xl bg-[#0E1016] border border-white/10">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white">Warna Aksen</span>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <span id="val-theme-accent" class="text-[11px] font-mono text-gray-400">#3B82F6</span>
+            <input id="input-theme-accent" type="color" value="#3B82F6" class="w-7 h-7 rounded-lg border-0 bg-transparent cursor-pointer" />
+          </label>
+        </div>
+        <div id="accent-swatches" class="flex items-center gap-2 flex-wrap">
+          <button type="button" data-accent="#3B82F6" class="w-7 h-7 rounded-full bg-[#3B82F6] border-2 border-white/30 cursor-pointer"></button>
+          <button type="button" data-accent="#10B981" class="w-7 h-7 rounded-full bg-[#10B981] border-2 border-white/30 cursor-pointer"></button>
+          <button type="button" data-accent="#F97316" class="w-7 h-7 rounded-full bg-[#F97316] border-2 border-white/30 cursor-pointer"></button>
+          <button type="button" data-accent="#EC4899" class="w-7 h-7 rounded-full bg-[#EC4899] border-2 border-white/30 cursor-pointer"></button>
+          <button type="button" data-accent="#8B5CF6" class="w-7 h-7 rounded-full bg-[#8B5CF6] border-2 border-white/30 cursor-pointer"></button>
+          <button type="button" data-accent="#38BDF8" class="w-7 h-7 rounded-full bg-[#38BDF8] border-2 border-white/30 cursor-pointer"></button>
+          <button type="button" data-accent="#EAB308" class="w-7 h-7 rounded-full bg-[#EAB308] border-2 border-white/30 cursor-pointer"></button>
+        </div>
+      </div>
+
+      <!-- Export / Import Theme JSON -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <button id="btn-export-theme-json" type="button" class="py-2.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-gray-200 flex items-center justify-center gap-1.5 cursor-pointer">
+          <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Export (.json)</span>
+        </button>
+        <label class="py-2.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-gray-200 flex items-center justify-center gap-1.5 cursor-pointer">
+          <i data-lucide="file-up" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span>Upload (.json)</span>
+          <input id="input-import-theme-json" type="file" accept=".json,application/json" class="hidden" />
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- SELF-CONTAINED APPLICATION SCRIPT                                     -->
+  <!-- ===================================================================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. CONSTANTS & CONFIGURATION
+    // -------------------------------------------------------------------------
+    const GOOGLE_CLIENT_ID = '668264554777-6ku514goq67rbpbsklnpetacojqnj0km.apps.googleusercontent.com';
+    const GOOGLE_SCOPES = 'openid email profile https://www.googleapis.com/auth/calendar.readonly';
+    const STORAGE_KEY_SESSION = 'bp_session_v3';
+    const DB_NAME = 'BangunProduktifMediaDB';
+    const DB_STORE = 'media';
+
+    const THEME_PRESETS = [
+      { id: 'midnight', name: 'Midnight Dark', isLight: false, bgMain: '#08090C', bgCard: 'rgba(18, 20, 27, 0.88)', textMain: '#F3F4F6', textMuted: '#9CA3AF', border: 'rgba(255, 255, 255, 0.08)', accent: '#3B82F6', preview: 'linear-gradient(135deg, #08090C 55%, #3B82F6 100%)' },
+      { id: 'light', name: 'Clean Light', isLight: true, bgMain: '#F1F5F9', bgCard: 'rgba(255, 255, 255, 0.9)', textMain: '#0F172A', textMuted: '#475569', border: 'rgba(15, 23, 42, 0.1)', accent: '#2563EB', preview: 'linear-gradient(135deg, #FFFFFF 55%, #2563EB 100%)' },
+      { id: 'emerald', name: 'Emerald Night', isLight: false, bgMain: '#06140F', bgCard: 'rgba(11, 31, 24, 0.88)', textMain: '#ECFDF5', textMuted: '#6EE7B7', border: 'rgba(16, 185, 129, 0.16)', accent: '#10B981', preview: 'linear-gradient(135deg, #06140F 55%, #10B981 100%)' },
+      { id: 'sunset', name: 'Sunset Glow', isLight: false, bgMain: '#160B14', bgCard: 'rgba(34, 17, 31, 0.88)', textMain: '#FFF7ED', textMuted: '#FDBA74', border: 'rgba(249, 115, 22, 0.18)', accent: '#F97316', preview: 'linear-gradient(135deg, #160B14 55%, #F97316 100%)' },
+      { id: 'cyber', name: 'Cyber Neon', isLight: false, bgMain: '#0D071A', bgCard: 'rgba(23, 13, 46, 0.88)', textMain: '#FDF4FF', textMuted: '#F0ABFC', border: 'rgba(236, 72, 153, 0.2)', accent: '#EC4899', preview: 'linear-gradient(135deg, #0D071A 55%, #EC4899 100%)' },
+      { id: 'ocean', name: 'Ocean Deep', isLight: false, bgMain: '#071324', bgCard: 'rgba(13, 29, 52, 0.88)', textMain: '#F0F9FF', textMuted: '#7DD3FC', border: 'rgba(56, 189, 248, 0.18)', accent: '#38BDF8', preview: 'linear-gradient(135deg, #071324 55%, #38BDF8 100%)' }
+    ];
+
+    const DEFAULT_THEME_CONFIG = {
+      presetId: 'midnight',
+      accent: '#3B82F6',
+      wallpaperMediaId: null,
+      wallpaperName: '',
+      wallpaperDim: 55,
+      wallpaperBlur: 4
+    };
+
+    // -------------------------------------------------------------------------
+    // 2. CORE HELPERS (DATE, TOAST, ICONS, INDEXEDDB)
+    // -------------------------------------------------------------------------
+    function getTodayDateStr() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function safeRenderIcons() {
+      try {
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      } catch (e) {}
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const colors = {
+        success: 'bg-emerald-600/95 border-emerald-400/40 text-white',
+        error: 'bg-red-600/95 border-red-400/40 text-white',
+        warning: 'bg-amber-600/95 border-amber-400/40 text-white',
+        info: 'bg-[#181B24]/95 border-white/15 text-gray-100'
+      };
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl backdrop-blur-md text-xs font-semibold flex items-center justify-between gap-2 transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-6px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function openMediaDB() {
+      return new Promise((resolve, reject) => {
+        try {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(DB_STORE)) {
+              db.createObjectStore(DB_STORE, { keyPath: 'id' });
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    async function saveMediaToDB(record) {
+      const db = await openMediaDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put(record);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getMediaFromDB(id) {
+      try {
+        const db = await openMediaDB();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(DB_STORE, 'readonly');
+          const req = tx.objectStore(DB_STORE).get(id);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => reject(req.error);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function deleteMediaFromDB(id) {
+      try {
+        const db = await openMediaDB();
+        return await new Promise((resolve, reject) => {
+          const tx = db.transaction(DB_STORE, 'readwrite');
+          tx.objectStore(DB_STORE).delete(id);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => reject(tx.error);
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. APPLICATION STATE & PER-ACCOUNT STORAGE
+    // -------------------------------------------------------------------------
+    const appState = {
+      session: null,
+      accountData: null,
+      activeTab: 'alarm',
+      selectedTodoDate: getTodayDateStr(),
+      galleryFilter: 'all',
+      lightboxItemId: null,
+      lastTriggeredMinute: '',
+      gisTokenClient: null
+    };
+
+    function getAccountStorageKey(email) {
+      return `bp_data_v3_${String(email || 'guest@local').toLowerCase().trim()}`;
+    }
+
+    function loadAccountData(email) {
+      try {
+        const raw = localStorage.getItem(getAccountStorageKey(email));
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            appTitle: parsed.appTitle || 'BangunProduktif',
+            theme: { ...DEFAULT_THEME_CONFIG, ...(parsed.theme || {}) },
+            alarms: Array.isArray(parsed.alarms) ? parsed.alarms : [],
+            alarmSound: parsed.alarmSound || null,
+            todosByDate: parsed.todosByDate || {},
+            gallery: Array.isArray(parsed.gallery) ? parsed.gallery : [],
+            events: Array.isArray(parsed.events) ? parsed.events : []
+          };
+        }
+      } catch (e) {}
+      return {
+        appTitle: 'BangunProduktif',
+        theme: { ...DEFAULT_THEME_CONFIG },
+        alarms: [
+          { id: 'alarm_default', time: '05:00', reps: 10, label: 'Bangun Pagi & Push-Up', enabled: true }
+        ],
+        alarmSound: null,
+        todosByDate: {},
+        gallery: [],
+        events: []
+      };
+    }
+
+    function saveAccountData() {
+      if (!appState.session || !appState.accountData) return;
+      try {
+        localStorage.setItem(getAccountStorageKey(appState.session.email), JSON.stringify(appState.accountData));
+      } catch (e) {
+        showToast('Gagal menyimpan data lokal.', 'error');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. GOOGLE OAUTH 2.0 (GIS) & GOOGLE CALENDAR API SYNC
+    // -------------------------------------------------------------------------
+    function initGisTokenClient() {
+      if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
+        return null;
+      }
+      if (!appState.gisTokenClient) {
+        appState.gisTokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: GOOGLE_SCOPES,
+          callback: async (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              await handleOAuthTokenSuccess(tokenResponse.access_token);
+            } else {
+              showToast('Login Google dibatalkan.', 'warning');
+            }
+          },
+          error_callback: () => {
+            showToast('Popup Google diblokir atau origin belum terdaftar. Coba di GitHub Pages atau gunakan Mode Tamu.', 'warning');
+          }
+        });
+      }
+      return appState.gisTokenClient;
+    }
+
+    function triggerGoogleOAuthFlow(retryCount = 0) {
+      const client = initGisTokenClient();
+      if (!client) {
+        if (retryCount < 3) {
+          showToast('Memuat layanan Google Sign-In...', 'info');
+          setTimeout(() => triggerGoogleOAuthFlow(retryCount + 1), 900);
+        } else {
+          showToast('Google Sign-In tidak dapat dimuat di pratinjau ini. Buka di GitHub Pages atau pilih Mode Tamu.', 'warning');
+        }
+        return;
+      }
+
+      try {
+        client.requestAccessToken({ prompt: 'select_account' });
+      } catch (err) {
+        showToast('Gagal membuka jendela login Google.', 'error');
+      }
+    }
+
+    async function handleOAuthTokenSuccess(accessToken) {
+      showToast('Mengambil profil & jadwal Google Calendar...', 'info');
+      let profile = { email: '', name: 'Pengguna Google', picture: '' };
+
+      try {
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          profile.email = data.email || '';
+          profile.name = data.name || (profile.email ? profile.email.split('@')[0] : 'Pengguna');
+          profile.picture = data.picture || '';
+        }
+      } catch (e) {}
+
+      if (!profile.email) {
+        showToast('Gagal membaca profil akun Google.', 'error');
+        return;
+      }
+
+      appState.session = {
+        email: profile.email,
+        name: profile.name,
+        picture: profile.picture,
+        initial: (profile.name[0] || 'G').toUpperCase(),
+        mode: 'oauth',
+        accessToken
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(appState.session));
+      } catch (e) {}
+
+      appState.accountData = loadAccountData(profile.email);
+      enterMainWorkspace();
+      await syncLiveGoogleCalendarEvents(accessToken);
+    }
+
+    async function syncLiveGoogleCalendarEvents(accessToken) {
+      const syncIcon = document.getElementById('sync-icon');
+      if (syncIcon) syncIcon.classList.add('animate-spin');
+
+      try {
+        const calListRes = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!calListRes.ok) throw new Error('CalendarList error');
+
+        const calListData = await calListRes.json();
+        const calendars = calListData.items || [];
+        const timeMin = new Date().toISOString();
+        const timeMax = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+        const fetched = [];
+
+        for (const cal of calendars) {
+          const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&maxResults=100`;
+          const evRes = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+          if (!evRes.ok) continue;
+          const evData = await evRes.json();
+          for (const item of (evData.items || [])) {
+            if (item.status === 'cancelled') continue;
+            const startRaw = item.start?.dateTime || item.start?.date;
+            if (!startRaw) continue;
+            const datePart = startRaw.slice(0, 10);
+            let timePart = 'Sepanjang Hari';
+            if (item.start?.dateTime) {
+              const s = new Date(item.start.dateTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+              const e = item.end?.dateTime ? new Date(item.end.dateTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+              timePart = e ? `${s} - ${e}` : s;
+            }
+            fetched.push({
+              id: `gcal_${item.id}`,
+              title: item.summary || '(Tanpa Judul)',
+              date: datePart,
+              time: timePart,
+              sortKey: startRaw,
+              source: cal.summary || 'Google Calendar'
+            });
+          }
+        }
+
+        const localImported = (appState.accountData.events || []).filter((ev) => ev.source === 'Import .ICS');
+        appState.accountData.events = [...fetched, ...localImported].sort((a, b) => (a.sortKey || a.date).localeCompare(b.sortKey || b.date));
+        saveAccountData();
+        renderCalendar();
+        showToast(`Sinkronisasi berhasil: ${fetched.length} jadwal dimuat!`, 'success');
+      } catch (err) {
+        showToast('Token kedaluwarsa atau offline. Klik Sinkronkan lagi untuk login ulang.', 'warning');
+      } finally {
+        if (syncIcon) syncIcon.classList.remove('animate-spin');
+      }
+    }
+
+    function enterGuestMode() {
+      appState.session = {
+        email: 'guest@local',
+        name: 'Mode Tamu',
+        picture: '',
+        initial: 'T',
+        mode: 'guest',
+        accessToken: null
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(appState.session));
+      } catch (e) {}
+      appState.accountData = loadAccountData('guest@local');
+      enterMainWorkspace();
+      showToast('Masuk Mode Tamu (Offline) berhasil!', 'success');
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. WORKSPACE, HEADER & THEME ENGINE
+    // -------------------------------------------------------------------------
+    function enterMainWorkspace() {
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
+      applyAccountTheme();
+      updateHeaderUI();
+      updateAlarmSoundUI();
+      renderAlarms();
+      renderTodoList();
+      renderGallery();
+      renderCalendar();
+      safeRenderIcons();
+    }
+
+    function updateHeaderUI() {
+      if (!appState.session || !appState.accountData) return;
+      const title = appState.accountData.appTitle || 'BangunProduktif';
+      document.title = title;
+      document.getElementById('header-app-title').textContent = title;
+      document.getElementById('header-user-short').textContent = (appState.session.name || 'Akun').split(' ')[0];
+      document.getElementById('header-user-email').textContent =
+        appState.session.email === 'guest@local' ? 'Mode Tamu (Offline)' : appState.session.email;
+      document.getElementById('header-oauth-badge').textContent =
+        appState.session.mode === 'oauth' ? 'Google Terhubung' : 'Mode Tamu';
+
+      const avatarEl = document.getElementById('header-avatar-badge');
+      if (appState.session.picture) {
+        avatarEl.innerHTML = `<img src="${appState.session.picture}" alt="Avatar" class="w-full h-full object-cover" referrerpolicy="no-referrer" />`;
+      } else {
+        avatarEl.textContent = appState.session.initial || 'T';
+      }
+    }
+
+    let activeWallpaperUrl = null;
+    function hexToRgba(hex, alpha) {
+      const c = String(hex || '#3B82F6').replace('#', '');
+      const r = parseInt(c.substring(0, 2), 16) || 59;
+      const g = parseInt(c.substring(2, 4), 16) || 130;
+      const b = parseInt(c.substring(4, 6), 16) || 246;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    async function applyAccountTheme() {
+      const cfg = { ...DEFAULT_THEME_CONFIG, ...(appState.accountData?.theme || {}) };
+      const preset = THEME_PRESETS.find((p) => p.id === cfg.presetId) || THEME_PRESETS[0];
+      const accent = cfg.accent || preset.accent;
+
+      const root = document.documentElement;
+      root.style.setProperty('--bg-main', preset.bgMain);
+      root.style.setProperty('--bg-card', preset.bgCard);
+      root.style.setProperty('--text-main', preset.textMain);
+      root.style.setProperty('--text-muted', preset.textMuted);
+      root.style.setProperty('--border-subtle', preset.border);
+      root.style.setProperty('--accent', accent);
+      root.style.setProperty('--accent-soft', hexToRgba(accent, 0.16));
+      root.style.setProperty('--wallpaper-dim', String((cfg.wallpaperDim ?? 55) / 100));
+      root.style.setProperty('--wallpaper-blur', `${cfg.wallpaperBlur ?? 4}px`);
+
+      document.body.classList.toggle('theme-light', Boolean(preset.isLight));
+      document.body.style.backgroundColor = preset.bgMain;
+
+      const wpLayer = document.getElementById('theme-wallpaper-layer');
+      const wpOverlay = document.getElementById('theme-wallpaper-overlay');
+
+      if (activeWallpaperUrl) {
+        URL.revokeObjectURL(activeWallpaperUrl);
+        activeWallpaperUrl = null;
+      }
+
+      if (cfg.wallpaperMediaId) {
+        const rec = await getMediaFromDB(cfg.wallpaperMediaId);
+        if (rec && rec.blob) {
+          activeWallpaperUrl = URL.createObjectURL(rec.blob);
+          wpLayer.style.backgroundImage = `url("${activeWallpaperUrl}")`;
+          wpLayer.classList.remove('hidden');
+          wpOverlay.classList.remove('hidden');
+          wpOverlay.style.backgroundColor = preset.isLight
+            ? `rgba(241, 245, 249, ${(cfg.wallpaperDim ?? 55) / 100})`
+            : `rgba(8, 9, 12, ${(cfg.wallpaperDim ?? 55) / 100})`;
+          document.body.classList.add('has-wallpaper');
+        } else {
+          wpLayer.classList.add('hidden');
+          wpOverlay.classList.add('hidden');
+          document.body.classList.remove('has-wallpaper');
+        }
+      } else {
+        wpLayer.style.backgroundImage = '';
+        wpLayer.classList.add('hidden');
+        wpOverlay.classList.add('hidden');
+        document.body.classList.remove('has-wallpaper');
+      }
+
+      syncThemeStudioControls(cfg);
+    }
+
+    function syncThemeStudioControls(cfg) {
+      const grid = document.getElementById('theme-presets-grid');
+      if (grid) {
+        grid.innerHTML = THEME_PRESETS.map((p) => {
+          const active = p.id === cfg.presetId;
+          return `
+            <button type="button" data-theme-preset="${p.id}" class="p-2.5 rounded-2xl border ${active ? 'border-blue-400 bg-white/10' : 'border-white/10 bg-[#0E1016] hover:bg-white/[0.06]'} flex items-center gap-2.5 text-left cursor-pointer">
+              <span class="w-7 h-7 rounded-xl shrink-0 border border-white/20" style="background: ${p.preview}"></span>
+              <span class="text-xs font-semibold text-white truncate">${p.name}</span>
+            </button>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('[data-theme-preset]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const preset = THEME_PRESETS.find((p) => p.id === btn.getAttribute('data-theme-preset'));
+            if (!preset) return;
+            appState.accountData.theme.presetId = preset.id;
+            appState.accountData.theme.accent = preset.accent;
+            saveAccountData();
+            applyAccountTheme();
+            showToast(`Tema "${preset.name}" diterapkan!`, 'success');
+          });
+        });
+      }
+
+      document.getElementById('input-theme-accent').value = cfg.accent || '#3B82F6';
+      document.getElementById('val-theme-accent').textContent = (cfg.accent || '#3B82F6').toUpperCase();
+      document.getElementById('slider-wallpaper-dim').value = cfg.wallpaperDim ?? 55;
+      document.getElementById('val-wallpaper-dim').textContent = `${cfg.wallpaperDim ?? 55}%`;
+      document.getElementById('slider-wallpaper-blur').value = cfg.wallpaperBlur ?? 4;
+      document.getElementById('val-wallpaper-blur').textContent = `${cfg.wallpaperBlur ?? 4}px`;
+
+      const wpStatus = document.getElementById('theme-wallpaper-status');
+      const removeBtn = document.getElementById('btn-remove-wallpaper');
+      if (cfg.wallpaperMediaId) {
+        wpStatus.textContent = cfg.wallpaperName || 'Wallpaper aktif';
+        removeBtn.classList.remove('hidden');
+      } else {
+        wpStatus.textContent = 'Belum ada gambar';
+        removeBtn.classList.add('hidden');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. TAB 1: ALARM, AUDIO ENGINE & CAMERA PUSH-UP TRACKER
+    // -------------------------------------------------------------------------
+    let audioCtx = null;
+    let synthTimer = null;
+    let customAudioEl = null;
+
+    async function startAlarmSoundLoop() {
+      stopAlarmSoundLoop();
+      const soundMeta = appState.accountData?.alarmSound;
+      if (soundMeta?.mediaId) {
+        const rec = await getMediaFromDB(soundMeta.mediaId);
+        if (rec?.blob) {
+          try {
+            customAudioEl = new Audio(URL.createObjectURL(rec.blob));
+            customAudioEl.loop = true;
+            await customAudioEl.play();
+            return;
+          } catch (e) {}
+        }
+      }
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new Ctx();
+        const beep = () => {
+          if (!audioCtx) return;
+          const now = audioCtx.currentTime;
+          [880, 1174, 880, 1318].forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + i * 0.14);
+            gain.gain.setValueAtTime(0.18, now + i * 0.14);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.14 + 0.12);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + i * 0.14);
+            osc.stop(now + i * 0.14 + 0.13);
+          });
+        };
+        beep();
+        synthTimer = setInterval(beep, 1100);
+      } catch (e) {}
+    }
+
+    function stopAlarmSoundLoop() {
+      if (synthTimer) { clearInterval(synthTimer); synthTimer = null; }
+      if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+      if (customAudioEl) { customAudioEl.pause(); customAudioEl.src = ''; customAudioEl = null; }
+    }
+
+    function updateAlarmSoundUI() {
+      const soundMeta = appState.accountData?.alarmSound;
+      const badge = document.getElementById('alarm-sound-badge');
+      const fname = document.getElementById('alarm-sound-filename');
+      const resetBtn = document.getElementById('btn-reset-sound');
+      if (soundMeta?.fileName) {
+        badge.textContent = 'Audio Custom';
+        fname.textContent = `File: ${soundMeta.fileName}`;
+        resetBtn.classList.remove('hidden');
+      } else {
+        badge.textContent = 'Nada Bawaan';
+        fname.textContent = 'Menggunakan nada dering digital bawaan (Web Audio)';
+        resetBtn.classList.add('hidden');
+      }
+    }
+
+    function renderAlarms() {
+      const container = document.getElementById('alarms-list');
+      const alarms = appState.accountData?.alarms || [];
+      if (alarms.length === 0) {
+        container.innerHTML = `<div class="text-center py-6 text-xs text-gray-500 bg-[#12141B] rounded-2xl border border-white/[0.06]">Belum ada alarm.</div>`;
+        return;
+      }
+      container.innerHTML = alarms.map((a) => `
+        <div class="rounded-2xl bg-[#12141B] border ${a.enabled ? 'border-blue-500/30' : 'border-white/[0.06] opacity-60'} p-4 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-baseline gap-2">
+              <span class="text-2xl font-extrabold text-white tabular-nums">${a.time}</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300">${a.reps}x Push-Up</span>
+            </div>
+            <div class="text-xs text-gray-300 truncate mt-0.5">${a.label || 'Alarm Push-Up'}</div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" data-toggle-alarm="${a.id}" class="w-11 h-6 rounded-full p-0.5 cursor-pointer ${a.enabled ? 'bg-blue-600' : 'bg-gray-700'}">
+              <div class="w-5 h-5 rounded-full bg-white transition-transform ${a.enabled ? 'translate-x-5' : 'translate-x-0'}"></div>
+            </button>
+            <button type="button" data-delete-alarm="${a.id}" class="p-2 rounded-xl text-gray-400 hover:text-red-400 cursor-pointer">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      safeRenderIcons();
+
+      container.querySelectorAll('[data-toggle-alarm]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const t = appState.accountData.alarms.find((x) => x.id === btn.getAttribute('data-toggle-alarm'));
+          if (t) { t.enabled = !t.enabled; saveAccountData(); renderAlarms(); }
+        });
+      });
+      container.querySelectorAll('[data-delete-alarm]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          appState.accountData.alarms = appState.accountData.alarms.filter((x) => x.id !== btn.getAttribute('data-delete-alarm'));
+          saveAccountData();
+          renderAlarms();
+          showToast('Alarm dihapus.', 'info');
+        });
+      });
+    }
+
+    let challengeState = { active: false, targetReps: 10, currentReps: 0, stream: null, motionTimer: null, prevLuma: null, cooldown: false };
+
+    function updateChallengeUI() {
+      document.getElementById('challenge-rep-current').textContent = String(challengeState.currentReps);
+      document.getElementById('challenge-rep-target').textContent = String(challengeState.targetReps);
+      const dismissBtn = document.getElementById('btn-dismiss-alarm-locked');
+      if (challengeState.currentReps >= challengeState.targetReps) {
+        dismissBtn.disabled = false;
+        dismissBtn.className = 'py-3.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg cursor-pointer';
+        dismissBtn.innerHTML = `<i data-lucide="unlock" class="w-4 h-4"></i><span>Matikan Alarm!</span>`;
+      } else {
+        const rem = challengeState.targetReps - challengeState.currentReps;
+        dismissBtn.disabled = true;
+        dismissBtn.className = 'py-3.5 px-4 rounded-2xl bg-gray-800 text-gray-500 font-extrabold text-xs flex items-center justify-center gap-2 cursor-not-allowed';
+        dismissBtn.innerHTML = `<i data-lucide="lock" class="w-4 h-4"></i><span>Kurang ${rem} Rep</span>`;
+      }
+      safeRenderIcons();
+    }
+
+    function incrementPushupRep() {
+      if (!challengeState.active) return;
+      if (challengeState.currentReps < challengeState.targetReps) {
+        challengeState.currentReps += 1;
+        updateChallengeUI();
+        if (challengeState.currentReps >= challengeState.targetReps) {
+          showToast('Target selesai! Klik "Matikan Alarm!"', 'success');
+        }
+      }
+    }
+
+    async function triggerRingingAlarmChallenge(alarmObj) {
+      challengeState = { active: true, targetReps: Number(alarmObj.reps) || 5, currentReps: 0, stream: null, motionTimer: null, prevLuma: null, cooldown: false };
+      document.getElementById('challenge-alarm-title').textContent = alarmObj.label || 'Waktunya Push-Up!';
+      document.getElementById('pose-camera-fallback-banner').classList.add('hidden');
+      document.getElementById('alarm-challenge-modal').classList.remove('hidden');
+      updateChallengeUI();
+      startAlarmSoundLoop();
+
+      const videoEl = document.getElementById('pose-video');
+      const statusEl = document.getElementById('challenge-ai-status');
+      const motionBadge = document.getElementById('pose-motion-badge');
+      const mCanvas = document.getElementById('motion-canvas');
+      const mCtx = mCanvas.getContext('2d', { willReadFrequently: true });
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 320, height: 240 }, audio: false });
+        challengeState.stream = stream;
+        videoEl.srcObject = stream;
+        await videoEl.play();
+        statusEl.textContent = 'Kamera Aktif • Gerakkan badan naik-turun di depan kamera';
+        mCanvas.width = 64;
+        mCanvas.height = 48;
+
+        challengeState.motionTimer = setInterval(() => {
+          if (!challengeState.active || videoEl.readyState < 2) return;
+          mCtx.drawImage(videoEl, 0, 0, 64, 48);
+          const data = mCtx.getImageData(0, 0, 64, 48).data;
+          let sum = 0;
+          for (let i = 0; i < data.length; i += 16) {
+            sum += (data[i] + data[i + 1] + data[i + 2]) / 3;
+          }
+          const avg = sum / (data.length / 16);
+          if (challengeState.prevLuma !== null) {
+            const diff = Math.abs(avg - challengeState.prevLuma);
+            motionBadge.textContent = `Sensor Gerak: ${Math.round(diff)}`;
+            if (diff > 18 && !challengeState.cooldown) {
+              challengeState.cooldown = true;
+              incrementPushupRep();
+              setTimeout(() => { challengeState.cooldown = false; }, 900);
+            }
+          }
+          challengeState.prevLuma = avg;
+        }, 200);
+      } catch (e) {
+        statusEl.textContent = 'Mode Manual Aktif';
+        document.getElementById('pose-camera-fallback-banner').classList.remove('hidden');
+      }
+    }
+
+    function stopAndCloseAlarmChallenge() {
+      challengeState.active = false;
+      stopAlarmSoundLoop();
+      if (challengeState.motionTimer) { clearInterval(challengeState.motionTimer); challengeState.motionTimer = null; }
+      if (challengeState.stream) { challengeState.stream.getTracks().forEach((t) => t.stop()); challengeState.stream = null; }
+      document.getElementById('alarm-challenge-modal').classList.add('hidden');
+      showToast('Alarm dimatikan! Semangat beraktivitas!', 'success');
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. TAB 2: TO-DO LIST
+    // -------------------------------------------------------------------------
+    function renderTodoList() {
+      const dateStr = appState.selectedTodoDate;
+      if (!appState.accountData.todosByDate[dateStr]) {
+        appState.accountData.todosByDate[dateStr] = [];
+      }
+      const tasks = appState.accountData.todosByDate[dateStr];
+      const dt = new Date(`${dateStr}T00:00:00`);
+      document.getElementById('todo-day-title').textContent = dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+      document.getElementById('todo-date-picker').value = dateStr;
+
+      const total = tasks.length;
+      const done = tasks.filter((t) => t.completed).length;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      document.getElementById('todo-progress-text').textContent = `${done}/${total} (${pct}%)`;
+      document.getElementById('todo-progress-bar').style.width = `${pct}%`;
+
+      const container = document.getElementById('todo-items-container');
+      if (tasks.length === 0) {
+        container.innerHTML = `<div class="text-center py-8 text-xs text-gray-500 bg-[#12141B] rounded-2xl border border-white/[0.06]">Belum ada tugas untuk tanggal ini.</div>`;
+        return;
+      }
+
+      container.innerHTML = tasks.map((task) => `
+        <div class="rounded-2xl bg-[#12141B] border ${task.completed ? 'border-emerald-500/30' : 'border-white/[0.08]'} p-3.5 flex items-center justify-between gap-3">
+          <button type="button" data-toggle-todo="${task.id}" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer">
+            <div class="w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 ${task.completed ? 'bg-emerald-500 border-emerald-500 text-[#08090C]' : 'border-gray-600'}">
+              ${task.completed ? '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>' : ''}
+            </div>
+            <span class="text-sm font-semibold truncate ${task.completed ? 'line-through text-gray-500' : 'text-gray-100'}">${task.title}</span>
+          </button>
+          <button type="button" data-delete-todo="${task.id}" class="p-2 rounded-xl text-gray-500 hover:text-red-400 cursor-pointer">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+      safeRenderIcons();
+
+      container.querySelectorAll('[data-toggle-todo]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const t = tasks.find((x) => x.id === btn.getAttribute('data-toggle-todo'));
+          if (t) { t.completed = !t.completed; saveAccountData(); renderTodoList(); }
+        });
+      });
+      container.querySelectorAll('[data-delete-todo]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          appState.accountData.todosByDate[dateStr] = tasks.filter((x) => x.id !== btn.getAttribute('data-delete-todo'));
+          saveAccountData();
+          renderTodoList();
+        });
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. TAB 3: GALERI BUKTI
+    // -------------------------------------------------------------------------
+    async function renderGallery() {
+      const grid = document.getElementById('gallery-grid');
+      const items = (appState.accountData?.gallery || []).filter((i) => appState.galleryFilter === 'all' || i.type === appState.galleryFilter);
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="col-span-2 text-center py-10 px-4 rounded-2xl bg-[#12141B] border border-white/[0.06] text-xs text-gray-400">Belum ada foto atau video bukti. Klik tombol Upload di atas.</div>`;
+        return;
+      }
+      grid.innerHTML = '';
+      for (const item of items) {
+        const rec = await getMediaFromDB(item.mediaId);
+        const url = rec?.blob ? URL.createObjectURL(rec.blob) : '';
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'relative aspect-square rounded-2xl overflow-hidden bg-[#141720] border border-white/10 text-left cursor-pointer';
+        card.innerHTML = `
+          ${url ? (item.type === 'video' ? `<video src="${url}" class="w-full h-full object-cover" muted playsinline></video>` : `<img src="${url}" alt="${item.title}" class="w-full h-full object-cover" />`) : ''}
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2.5">
+            <div class="text-xs font-bold text-white truncate">${item.title}</div>
+            <div class="text-[10px] text-gray-300">${item.date}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          appState.lightboxItemId = item.id;
+          document.getElementById('lightbox-title').textContent = item.title;
+          document.getElementById('lightbox-meta').textContent = `${item.date} • ${item.timestamp || ''}`;
+          document.getElementById('lightbox-media-wrapper').innerHTML = item.type === 'video'
+            ? `<video src="${url}" controls autoplay class="max-h-[72vh] max-w-full rounded-2xl"></video>`
+            : `<img src="${url}" alt="${item.title}" class="max-h-[72vh] max-w-full object-contain rounded-2xl" />`;
+          document.getElementById('modal-lightbox').classList.remove('hidden');
+        });
+        grid.appendChild(card);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. TAB 4: KALENDER & .ICS PARSER
+    // -------------------------------------------------------------------------
+    function renderCalendar() {
+      const events = (appState.accountData?.events || []).slice().sort((a, b) => (a.sortKey || a.date).localeCompare(b.sortKey || b.date));
+      document.getElementById('cal-event-count').textContent = `${events.length} jadwal`;
+      const list = document.getElementById('cal-agenda-list');
+
+      if (events.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-8 px-4 rounded-2xl bg-[#12141B] border border-white/[0.06] space-y-1">
+            <p class="text-xs font-semibold text-gray-300">Belum ada jadwal kalender</p>
+            <p class="text-[11px] text-gray-500">Klik "Sinkronkan Sekarang" untuk menarik Google Calendar atau "Import .ICS".</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = events.map((ev) => `
+        <div class="rounded-2xl bg-[#12141B] border border-white/[0.08] p-3.5 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-sm font-bold text-white truncate">${ev.title}</div>
+            <div class="text-[11px] text-gray-400 mt-1 flex items-center gap-2">
+              <span class="text-blue-400 font-semibold">${ev.date}</span>
+              <span>•</span>
+              <span>${ev.time}</span>
+            </div>
+            <div class="text-[10px] text-gray-500 mt-0.5 truncate">${ev.source}</div>
+          </div>
+          <span class="px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-300 text-[10px] font-bold shrink-0">Agenda</span>
+        </div>
+      `).join('');
+    }
+
+    function parseAndImportICS(text) {
+      const blocks = text.split('BEGIN:VEVENT');
+      let count = 0;
+      for (let i = 1; i < blocks.length; i++) {
+        const summary = blocks[i].match(/SUMMARY:(.*)/);
+        const dtStart = blocks[i].match(/DTSTART[^:]*:(\d{8})(T(\d{4}))?/);
+        if (summary && dtStart) {
+          const d = dtStart[1];
+          const iso = `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+          const t = dtStart[3] ? `${dtStart[3].slice(0, 2)}:${dtStart[3].slice(2, 4)}` : 'Sepanjang Hari';
+          appState.accountData.events.push({
+            id: `ics_${Date.now()}_${i}`,
+            title: summary[1].trim(),
+            date: iso,
+            time: t,
+            sortKey: `${iso}T${t}`,
+            source: 'Import .ICS'
+          });
+          count++;
+        }
+      }
+      saveAccountData();
+      renderCalendar();
+      showToast(`${count} jadwal berhasil diimpor dari .ICS!`, 'success');
+    }
+
+    // -------------------------------------------------------------------------
+    // 10. TAB SWITCHING, LIVE CLOCK & ALL EVENT BINDINGS
+    // -------------------------------------------------------------------------
+    function switchTab(tabName) {
+      appState.activeTab = tabName;
+      ['alarm', 'todo', 'gallery', 'calendar'].forEach((t) => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabName);
+      });
+      document.querySelectorAll('.nav-tab-btn').forEach((btn) => {
+        const active = btn.getAttribute('data-tab') === tabName;
+        btn.className = active
+          ? 'nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-blue-400 bg-blue-500/10 cursor-pointer'
+          : 'nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-gray-400 hover:text-gray-200 cursor-pointer';
+      });
+      if (tabName === 'todo') renderTodoList();
+      if (tabName === 'gallery') renderGallery();
+      if (tabName === 'calendar') renderCalendar();
+    }
+
+    function startLiveClock() {
+      const tick = () => {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('live-clock-time').textContent = `${hh}:${mm}:${ss}`;
+        document.getElementById('live-clock-date').textContent = now.toLocaleDateString('id-ID', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        if (appState.session && appState.accountData && ss === '00') {
+          const hm = `${hh}:${mm}`;
+          const stamp = `${getTodayDateStr()}_${hm}`;
+          if (appState.lastTriggeredMinute !== stamp) {
+            const match = (appState.accountData.alarms || []).find((a) => a.enabled && a.time === hm);
+            if (match) {
+              appState.lastTriggeredMinute = stamp;
+              triggerRingingAlarmChallenge(match);
+            }
+          }
+        }
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function bindAllEvents() {
+      // Login Buttons
+      document.getElementById('btn-continue-google').addEventListener('click', () => triggerGoogleOAuthFlow(0));
+      document.getElementById('btn-instant-login').addEventListener('click', () => enterGuestMode());
+
+      // Header Actions
+      document.getElementById('btn-edit-app-title').addEventListener('click', () => {
+        document.getElementById('input-custom-app-title').value = appState.accountData?.appTitle || 'BangunProduktif';
+        document.getElementById('modal-edit-title').classList.remove('hidden');
+      });
+
+      document.getElementById('btn-save-app-title').addEventListener('click', () => {
+        const val = document.getElementById('input-custom-app-title').value.trim();
+        if (val) {
+          appState.accountData.appTitle = val;
+          saveAccountData();
+          updateHeaderUI();
+          showToast('Nama aplikasi diperbarui!', 'success');
+        }
+        document.getElementById('modal-edit-title').classList.add('hidden');
+      });
+
+      document.getElementById('btn-open-theme-studio').addEventListener('click', () => {
+        syncThemeStudioControls({ ...DEFAULT_THEME_CONFIG, ...(appState.accountData?.theme || {}) });
+        document.getElementById('modal-theme-studio').classList.remove('hidden');
+        safeRenderIcons();
+      });
+
+      document.getElementById('btn-header-sync').addEventListener('click', () => {
+        if (appState.session?.accessToken) {
+          syncLiveGoogleCalendarEvents(appState.session.accessToken);
+        } else {
+          triggerGoogleOAuthFlow(0);
+        }
+      });
+
+      document.getElementById('btn-switch-account').addEventListener('click', () => {
+        if (appState.session?.accessToken && typeof google !== 'undefined' && google.accounts?.oauth2) {
+          try { google.accounts.oauth2.revoke(appState.session.accessToken, () => {}); } catch (e) {}
+        }
+        try { localStorage.removeItem(STORAGE_KEY_SESSION); } catch (e) {}
+        appState.session = null;
+        document.getElementById('main-app').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+        showToast('Berhasil keluar. Silakan pilih akun.', 'info');
+      });
+
+      // Bottom Nav Tabs
+      document.querySelectorAll('.nav-tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+      });
+
+      // Theme Studio Events
+      document.getElementById('input-theme-wallpaper').addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const oldId = appState.accountData.theme?.wallpaperMediaId;
+        if (oldId) await deleteMediaFromDB(oldId);
+        const mediaId = `wp_${appState.session.email}_${Date.now()}`;
+        await saveMediaToDB({ id: mediaId, blob: file, mimeType: file.type });
+        appState.accountData.theme.wallpaperMediaId = mediaId;
+        appState.accountData.theme.wallpaperName = file.name;
+        saveAccountData();
+        await applyAccountTheme();
+        showToast('Wallpaper tema dipasang!', 'success');
+      });
+
+      document.getElementById('btn-remove-wallpaper').addEventListener('click', async () => {
+        const oldId = appState.accountData.theme?.wallpaperMediaId;
+        if (oldId) await deleteMediaFromDB(oldId);
+        appState.accountData.theme.wallpaperMediaId = null;
+        appState.accountData.theme.wallpaperName = '';
+        saveAccountData();
+        await applyAccountTheme();
+        showToast('Wallpaper dihapus.', 'info');
+      });
+
+      document.getElementById('slider-wallpaper-dim').addEventListener('input', (e) => {
+        appState.accountData.theme.wallpaperDim = Number(e.target.value);
+        saveAccountData();
+        applyAccountTheme();
+      });
+
+      document.getElementById('slider-wallpaper-blur').addEventListener('input', (e) => {
+        appState.accountData.theme.wallpaperBlur = Number(e.target.value);
+        saveAccountData();
+        applyAccountTheme();
+      });
+
+      document.getElementById('input-theme-accent').addEventListener('input', (e) => {
+        appState.accountData.theme.accent = e.target.value;
+        saveAccountData();
+        applyAccountTheme();
+      });
+
+      document.querySelectorAll('#accent-swatches [data-accent]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          appState.accountData.theme.accent = btn.getAttribute('data-accent');
+          saveAccountData();
+          applyAccountTheme();
+        });
+      });
+
+      document.getElementById('btn-export-theme-json').addEventListener('click', () => {
+        const payload = { app: 'BangunProduktif', theme: appState.accountData.theme };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `bangunproduktif-theme.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('File tema (.json) diunduh!', 'success');
+      });
+
+      document.getElementById('input-import-theme-json').addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            const incoming = parsed.theme || parsed;
+            appState.accountData.theme = { ...appState.accountData.theme, ...incoming };
+            saveAccountData();
+            applyAccountTheme();
+            showToast('Tema .json berhasil diimpor!', 'success');
+          } catch (err) {
+            showToast('Format file .json tidak valid.', 'error');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // Alarm Events
+      document.getElementById('btn-save-alarm').addEventListener('click', () => {
+        const time = document.getElementById('new-alarm-time').value || '05:00';
+        const reps = Number(document.getElementById('new-alarm-reps').value) || 10;
+        const label = document.getElementById('new-alarm-label').value.trim() || 'Bangun & Push-Up';
+        appState.accountData.alarms.push({ id: `alarm_${Date.now()}`, time, reps, label, enabled: true });
+        document.getElementById('new-alarm-label').value = '';
+        saveAccountData();
+        renderAlarms();
+        showToast(`Alarm ${time} (${reps}x Push-Up) disimpan!`, 'success');
+      });
+
+      document.getElementById('btn-test-alarm-now').addEventListener('click', () => {
+        const first = appState.accountData?.alarms?.[0] || { label: 'Tes Alarm Push-Up', reps: 5 };
+        triggerRingingAlarmChallenge({ label: first.label, reps: Math.min(first.reps, 5) });
+      });
+
+      document.getElementById('input-alarm-audio').addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const mediaId = `audio_${appState.session.email}_${Date.now()}`;
+        await saveMediaToDB({ id: mediaId, blob: file, mimeType: file.type });
+        appState.accountData.alarmSound = { mediaId, fileName: file.name };
+        saveAccountData();
+        updateAlarmSoundUI();
+        showToast(`Audio "${file.name}" dipasang!`, 'success');
+      });
+
+      let previewPlaying = false;
+      document.getElementById('btn-preview-sound').addEventListener('click', () => {
+        if (!previewPlaying) {
+          previewPlaying = true;
+          startAlarmSoundLoop();
+          showToast('Memutar nada alarm...', 'info');
+        } else {
+          previewPlaying = false;
+          stopAlarmSoundLoop();
+          showToast('Suara dihentikan.', 'info');
+        }
+      });
+
+      document.getElementById('btn-reset-sound').addEventListener('click', () => {
+        appState.accountData.alarmSound = null;
+        saveAccountData();
+        updateAlarmSoundUI();
+        showToast('Nada alarm kembali ke bawaan.', 'info');
+      });
+
+      document.getElementById('btn-manual-pushup-rep').addEventListener('click', incrementPushupRep);
+      document.getElementById('btn-dismiss-alarm-locked').addEventListener('click', () => {
+        if (challengeState.currentReps >= challengeState.targetReps) stopAndCloseAlarmChallenge();
+      });
+
+      // To-Do Events
+      document.getElementById('btn-todo-prev-day').addEventListener('click', () => {
+        const d = new Date(`${appState.selectedTodoDate}T00:00:00`);
+        d.setDate(d.getDate() - 1);
+        appState.selectedTodoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        renderTodoList();
+      });
+
+      document.getElementById('btn-todo-next-day').addEventListener('click', () => {
+        const d = new Date(`${appState.selectedTodoDate}T00:00:00`);
+        d.setDate(d.getDate() + 1);
+        appState.selectedTodoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        renderTodoList();
+      });
+
+      document.getElementById('btn-todo-today').addEventListener('click', () => {
+        appState.selectedTodoDate = getTodayDateStr();
+        renderTodoList();
+      });
+
+      document.getElementById('todo-date-picker').addEventListener('change', (e) => {
+        if (e.target.value) { appState.selectedTodoDate = e.target.value; renderTodoList(); }
+      });
+
+      document.getElementById('btn-add-todo').addEventListener('click', () => {
+        const input = document.getElementById('new-todo-input');
+        const title = input.value.trim();
+        if (!title) return;
+        const dateStr = appState.selectedTodoDate;
+        if (!appState.accountData.todosByDate[dateStr]) appState.accountData.todosByDate[dateStr] = [];
+        appState.accountData.todosByDate[dateStr].push({ id: `todo_${Date.now()}`, title, completed: false });
+        input.value = '';
+        saveAccountData();
+        renderTodoList();
+        showToast('Tugas ditambahkan!', 'success');
+      });
+
+      // Gallery Events
+      document.querySelectorAll('.gal-filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          appState.galleryFilter = btn.getAttribute('data-gal-filter');
+          document.querySelectorAll('.gal-filter-btn').forEach((b) => {
+            b.className = b === btn
+              ? 'gal-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-[#111318] cursor-pointer'
+              : 'gal-filter-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/[0.06] text-gray-300 cursor-pointer';
+          });
+          renderGallery();
+        });
+      });
+
+      document.getElementById('input-direct-gallery-media').addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const mediaId = `gal_media_${Date.now()}`;
+        await saveMediaToDB({ id: mediaId, blob: file, mimeType: file.type });
+        appState.accountData.gallery.unshift({
+          id: `gal_${Date.now()}`,
+          mediaId,
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          date: getTodayDateStr(),
+          timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          type: file.type.startsWith('video/') ? 'video' : 'image'
+        });
+        saveAccountData();
+        renderGallery();
+        showToast('Media tersimpan ke Galeri!', 'success');
+      });
+
+      document.getElementById('btn-lightbox-delete').addEventListener('click', async () => {
+        const id = appState.lightboxItemId;
+        if (!id) return;
+        const item = appState.accountData.gallery.find((g) => g.id === id);
+        if (item?.mediaId) await deleteMediaFromDB(item.mediaId);
+        appState.accountData.gallery = appState.accountData.gallery.filter((g) => g.id !== id);
+        saveAccountData();
+        document.getElementById('modal-lightbox').classList.add('hidden');
+        renderGallery();
+        showToast('Media dihapus.', 'info');
+      });
+
+      // Calendar Events
+      document.getElementById('btn-cal-sync-now').addEventListener('click', () => {
+        if (appState.session?.accessToken) {
+          syncLiveGoogleCalendarEvents(appState.session.accessToken);
+        } else {
+          triggerGoogleOAuthFlow(0);
+        }
+      });
+
+      document.getElementById('input-import-ics').addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => parseAndImportICS(ev.target.result);
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // Generic Modal Close Buttons
+      document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.getElementById(btn.getAttribute('data-close-modal'))?.classList.add('hidden');
+        });
+      });
+    }
+
+    // Boot App
+    window.addEventListener('DOMContentLoaded', () => {
+      safeRenderIcons();
+      bindAllEvents();
+      startLiveClock();
+
+      try {
+        const savedRaw = localStorage.getItem(STORAGE_KEY_SESSION);
+        if (savedRaw) {
+          const saved = JSON.parse(savedRaw);
+          if (saved && saved.email) {
+            appState.session = saved;
+            appState.accountData = loadAccountData(saved.email);
+            enterMainWorkspace();
+          }
+        }
+      } catch (e) {
+        try { localStorage.removeItem(STORAGE_KEY_SESSION); } catch (err) {}
+      }
+    });
+  </script>
+</body>
+</html>
